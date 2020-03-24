@@ -1,0 +1,65 @@
+{
+  "name": "setupticket",
+  "permissions": "BAN_MEMBERS",
+  "restriction": "1",
+  "_id": "PxRsk",
+  "actions": [
+    {
+      "channelName": "Tickets",
+      "position": "0",
+      "storage": "2",
+      "varName": "Ticket.Category",
+      "name": "Create Category Channel"
+    },
+    {
+      "roleName": "Support",
+      "hoist": "false",
+      "mentionable": "true",
+      "color": "ccff66",
+      "position": "",
+      "storage": "2",
+      "varName": "Support.rank",
+      "name": "Create Role"
+    },
+    {
+      "info": "1",
+      "find": "Support",
+      "storage": "1",
+      "varName": "Support.role",
+      "name": "Find Role"
+    },
+    {
+      "role": "3",
+      "varName": "Support.role",
+      "info": "2",
+      "storage": "2",
+      "varName2": "Role.name.support",
+      "name": "Store Role Info"
+    },
+    {
+      "channel": "0",
+      "varName": "",
+      "message": "I just made the category **Tickets** and the ${serverVars(\"Support.rank\")} role has been created! You can always change the perms of the support rank!",
+      "storage": "1",
+      "varName2": "del.later",
+      "iffalse": "0",
+      "iffalseVal": "",
+      "name": "Send Message"
+    },
+    {
+      "storage": "0",
+      "varName": "",
+      "name": "Delete Message"
+    },
+    {
+      "time": "5",
+      "measurement": "1",
+      "name": "Wait"
+    },
+    {
+      "storage": "1",
+      "varName": "del.later",
+      "name": "Delete Message"
+    }
+  ]
+}
