@@ -5,35 +5,66 @@ open `index.html` in een browser of zet het op een willekeurige statische host.
 
 ## De loop
 
-1. **Gast verschijnt** — veeg links (weigeren) of rechts (binnen). Ook met de
-   knoppen, of met de pijltjestoetsen op desktop.
-2. **Elk uur komt er een regel bij.** De wet (legitimatie, 18+) gaat altijd vóór
-   het huisbeleid. Zodra "gastenlijst gaat vóór" hangt, overrulet die het
-   huisbeleid — dat is de geheugenval waar spelers op stuklopen.
-3. **Na 12 gasten de bank-beslissing**: deur dicht en de pot veiligstellen, of
+Je staat naast de deur. De rij komt van links, de club dreunt rechts van je.
+
+1. **De gast loopt naar je toe.** Wat je ziet — schoenen, outfit, pet, tas,
+   het gezelschap achter hem, of iemand te veel op heeft — lees je van de
+   figuur af.
+2. **Beslissen of controleren.** Onder de 25 moet je om legitimatie vragen:
+   houd de gast vast (of ArrowDown) en hij haalt zijn ID tevoorschijn. Dat
+   kost seconden, en snelheid is geld. Ziet iemand er ouder uit, dan hoeft
+   het niet en win je tijd.
+3. **Slepen naar links of rechts.** Weggestuurd loopt hij de straat in,
+   doorgelaten verdwijnt hij in het licht van de deur.
+4. **Elk uur komt er een regel bij.** De wet gaat vóór het huisbeleid, maar
+   zodra "gastenlijst gaat vóór" hangt, overrulet die het huisbeleid — dat is
+   de geheugenval waar spelers op stuklopen.
+5. **Na 12 gasten de bank-beslissing**: deur dicht en de pot veiligstellen, of
    nog een uur voor een hogere multiplier, met een extra regel en kortere
    bedenktijd. Drie fouten en de onbeveiligde pot is weg.
 
-Moeilijkheid schaalt via geheugenbelasting en bedenktijd, niet via reflexen.
+Moeilijkheid schaalt via geheugenbelasting en tijdsdruk, niet via reflexen.
 Elke fout benoemt de regel die je overtrad — legibel falen is wat "nog één
 potje" oplevert.
 
-## Wat erin zit
+## De scène
 
-- 2 wetten + 9 huisregels, willekeurig per nacht opgebouwd
-- Gastengenerator die de stroom rond 50/50 accepteren/weigeren houdt, zodat
-  blind één kant op vegen niet werkt
-- Combo-bonus per goede beslissing, multiplier per doorgespeeld uur
-- Records in `localStorage`, met near-miss-melding op het eindscherm
-- Swipe met stempel-feedback, WebAudio-blips, haptiek, `prefers-reduced-motion`
+Alles in het canvas is getekend, geen assets: natte straat, lantaarnpaal,
+gevel aan de overkant, motregen, fluwelen koord, en een clubdeur waarvan het
+licht op 124 BPM meepulseert met de bas. De rij achter de gast is de
+resterende gasten van dit uur — je ziet hem letterlijk korter worden.
+
+## Uitrusting
+
+Uitbetaalde nachten gaan naar je rekening; daar koop je spullen van die
+blijven:
+
+| Upgrade | Prijs | Effect |
+|---|---|---|
+| ID-scanner | €400 | Controle duurt half zo lang |
+| Fooienpot op de bar | €550 | Combobonus telt dubbel |
+| Ervaren blik | €650 | Je twijfelt pas onder de 23 in plaats van 25 |
+| Luifel boven de deur | €900 | Gasten wachten 25% langer |
+| Tweede portier | €1300 | Eén extra fout toegestaan |
+| Loonsverhoging | €1600 | +25% fooi per gast |
+
+Verliezen kost je de fooienpot van die nacht, nooit je uitrusting.
 
 ## Bewust nog niet gebouwd
 
-Clubupgrades, dagelijkse gastenlijst met vaste seed, leaderboard, rewarded ads.
-Die horen pas thuis nadat de kernloop bewezen leuk is.
+Dagelijkse gastenlijst met vaste seed, leaderboard, rewarded ads. Die horen
+pas thuis nadat de kernloop bewezen leuk is.
 
 ## Regelontwerp
 
 Alle regels gaan over kleding, spullen, leeftijd, nuchterheid, groepsgrootte,
-lidmaatschap en de gastenlijst — nooit over wie iemand is. Dat is bewust en zou
-zo moeten blijven als het spel wordt uitgebreid.
+lidmaatschap en de gastenlijst — nooit over wie iemand is. Dat is bewust en
+zou zo moeten blijven als het spel wordt uitgebreid.
+
+## Knoppen tijdens het spelen
+
+| Actie | Aanraking | Toetsenbord |
+|---|---|---|
+| Wegsturen | sleep naar links | ← |
+| Doorlaten | sleep naar rechts | → |
+| Om ID vragen | houd de gast vast | ↓ vasthouden |
