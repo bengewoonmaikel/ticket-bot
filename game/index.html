@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Op de Lijst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --ink:#0D0A10;
+  --ink-2:#15101C;
+  --surface:#1B1524;
+  --surface-2:#261D33;
+  --line:#3A2E4A;
+  --text:#F4EFE6;
+  --dim:#9C8FAB;
+  --amber:#EFA43C;
+  --amber-deep:#8A6224;
+  --jade:#3BC492;
+  --rouge:#E24A56;
+  --lift:0 18px 40px -14px rgba(0,0,0,.85);
+  --display:"Big Shoulders Display","Oswald","Archivo Narrow",Impact,sans-serif;
+  --body:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--ink);
+  color:var(--text);
+  font-family:var(--body);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:4px}
+
+/* ---------- frame ---------- */
+.app{
+  position:relative;
+  width:100%;max-width:460px;margin:0 auto;
+  height:100dvh;min-height:100svh;
+  display:flex;flex-direction:column;
+  background:
+    radial-gradient(120% 55% at 50% -8%, rgba(239,164,60,.16), transparent 62%),
+    linear-gradient(180deg,var(--ink-2),var(--ink) 42%);
+  padding:calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 12px);
+  overflow:hidden;
+}
+
+/* ---------- hud ---------- */
+.hud{display:flex;align-items:center;gap:10px}
+.strikes{display:flex;gap:5px;flex:1}
+.strike{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--line);background:transparent;transition:background .18s,border-color .18s,transform .18s}
+.strike.on{background:var(--rouge);border-color:var(--rouge);transform:scale(1.12)}
+.clock{text-align:center}
+.clock b{display:block;font-family:var(--display);font-weight:800;font-size:26px;line-height:.9;letter-spacing:.02em}
+.clock span{display:block;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:3px}
+.purse{flex:1;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.purse b{font-family:var(--mono);font-weight:600;font-size:17px;color:var(--amber);font-variant-numeric:tabular-nums}
+.purse span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.mute{font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding:2px 5px;border:1px solid var(--line);border-radius:3px}
+.mute:hover{color:var(--text)}
+
+/* ---------- deurbeleid ---------- */
+.policy{margin-top:12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 0}
+.policy>h2{
+  margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);
+  display:flex;align-items:center;gap:6px;
+}
+.policy .hair{flex:1;height:1px;background:linear-gradient(90deg,var(--amber-deep),transparent)}
+.rules{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.rules::-webkit-scrollbar{display:none}
+.rule{
+  flex:0 0 auto;font-size:11.5px;font-weight:600;white-space:nowrap;
+  padding:5px 9px;border-radius:3px;border:1px solid var(--line);background:var(--surface);color:var(--text);
+}
+.rule.law{border-color:var(--amber-deep);color:var(--amber)}
+.rule.fresh{animation:pop .9s ease-out}
+@keyframes pop{0%{background:var(--amber);color:#1A1206;border-color:var(--amber);transform:scale(1.06)}100%{}}
+
+/* ---------- stage ---------- */
+.stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;margin:10px 0}
+.stack{position:relative;width:100%}
+
+.card{
+  position:relative;width:100%;
+  background:linear-gradient(175deg,var(--surface-2),var(--surface) 30%);
+  border:1px solid var(--line);border-radius:5px;box-shadow:var(--lift);
+  touch-action:none;will-change:transform;
+}
+.card__head{display:flex;align-items:center;gap:10px;padding:11px 13px 10px}
+.queue{
+  font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--line);
+  border-radius:3px;padding:3px 5px;letter-spacing:.04em
+}
+.card__head h3{margin:0;font-family:var(--display);font-weight:700;font-size:27px;line-height:1;letter-spacing:.01em;flex:1}
+.perf{height:1px;background:repeating-linear-gradient(90deg,var(--line) 0 5px,transparent 5px 10px)}
+.card__body{display:flex;gap:13px;padding:14px 13px 12px;align-items:flex-start}
+.avatar{flex:0 0 84px;height:96px;border-radius:4px;background:linear-gradient(180deg,#221A2E,#191322);border:1px solid var(--line);display:grid;place-items:center;position:relative;overflow:hidden}
+.avatar svg{width:70px;height:80px;display:block}
+.crowd{position:absolute;right:4px;bottom:4px;font-family:var(--mono);font-size:10px;color:var(--text);background:rgba(13,10,16,.85);border:1px solid var(--line);border-radius:3px;padding:1px 4px}
+.chips{flex:1;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start}
+.chip{font-size:11.5px;font-weight:500;padding:4px 8px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--text)}
+.chip.pass{border-color:var(--amber-deep);color:var(--amber);background:rgba(239,164,60,.09)}
+.quote{padding:0 13px 12px;font-size:12.5px;font-style:italic;color:var(--dim);line-height:1.35}
+.patience{height:3px;background:rgba(255,255,255,.07);border-radius:0 0 4px 4px;overflow:hidden}
+.patience i{display:block;height:100%;background:var(--amber);transform-origin:left center;transform:scaleX(1)}
+
+.stamp{
+  position:absolute;top:16px;font-family:var(--display);font-weight:800;font-size:34px;letter-spacing:.06em;
+  border:3px solid currentColor;border-radius:5px;padding:2px 12px;opacity:0;pointer-events:none;
+}
+.stamp.yes{right:14px;color:var(--jade);transform:rotate(11deg)}
+.stamp.no{left:14px;color:var(--rouge);transform:rotate(-11deg)}
+
+.flash{
+  position:absolute;left:0;right:0;top:100%;margin-top:9px;text-align:center;pointer-events:none;
+  font-size:13px;font-weight:600;opacity:0;
+}
+.flash.show{animation:rise 1.1s ease-out forwards}
+@keyframes rise{0%{opacity:0;transform:translateY(6px)}18%{opacity:1;transform:translateY(-2px)}70%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+.flash .why{display:block;font-size:11px;font-weight:500;color:var(--dim);margin-top:2px}
+
+/* ---------- knoppen ---------- */
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.act{
+  padding:15px 8px;border-radius:4px;border:1px solid var(--line);background:var(--surface);
+  font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:.05em;
+  transition:transform .1s,background .15s;
+}
+.act small{display:block;font-family:var(--body);font-size:9.5px;font-weight:500;letter-spacing:.14em;color:var(--dim);margin-top:2px}
+.act:active{transform:translateY(2px)}
+.act.no{color:var(--rouge);border-color:rgba(226,74,86,.45);background:linear-gradient(180deg,rgba(226,74,86,.13),transparent)}
+.act.yes{color:var(--jade);border-color:rgba(59,196,146,.45);background:linear-gradient(180deg,rgba(59,196,146,.13),transparent)}
+
+/* ---------- overlays ---------- */
+.sheet{
+  position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:center;
+  gap:16px;padding:26px 24px calc(env(safe-area-inset-bottom) + 26px);
+  background:linear-gradient(180deg,rgba(13,10,16,.72),rgba(13,10,16,.94) 55%);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.sheet[hidden]{display:none}
+.eyebrow{font-size:9.5px;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:var(--amber);margin:0}
+.sheet h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(50px,17vw,74px);line-height:.84;letter-spacing:-.005em;text-wrap:balance}
+.sheet h2{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(38px,12vw,54px);line-height:.88;text-wrap:balance}
+.sheet p{margin:0;font-size:14px;line-height:1.5;color:var(--dim);max-width:34ch}
+.sheet p b{color:var(--text);font-weight:600}
+.ledger{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;display:flex;flex-direction:column;gap:7px}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13px}
+.row span{color:var(--dim)}
+.row b{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+.row.total b{font-size:19px;color:var(--amber)}
+.choices{display:flex;flex-direction:column;gap:9px}
+.big{
+  padding:15px 16px;border-radius:4px;text-align:left;border:1px solid var(--line);background:var(--surface);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;transition:transform .1s;
+}
+.big:active{transform:translateY(2px)}
+.big strong{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.03em;display:block}
+.big em{font-style:normal;font-size:11.5px;color:var(--dim);display:block;margin-top:1px}
+.big .val{font-family:var(--mono);font-weight:600;font-size:17px;white-space:nowrap}
+.big.safe{border-color:rgba(59,196,146,.5)} .big.safe .val{color:var(--jade)}
+.big.risk{border-color:rgba(239,164,60,.5)} .big.risk .val{color:var(--amber)}
+.big.go{border-color:rgba(239,164,60,.55);background:linear-gradient(180deg,rgba(239,164,60,.16),transparent)}
+.legal{font-size:11px;color:var(--dim);line-height:1.45}
+.legal b{color:var(--text)}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="hud">
+    <div class="strikes" id="strikes" aria-label="fouten"></div>
+    <div class="clock"><b id="clock">23:00</b><span id="hourlbl">uur 1</span></div>
+    <div class="purse"><b id="purse">&euro;0</b><span>in de kluis</span></div>
+  </header>
+
+  <section class="policy">
+    <h2>Deurbeleid vanavond<span class="hair"></span><button class="mute" id="btnMute">geluid</button></h2>
+    <div class="rules" id="rules"></div>
+  </section>
+
+  <section class="stage" id="stage">
+   <div class="stack">
+    <article class="card" id="card">
+      <div class="card__head"><span class="queue" id="queue">#001</span><h3 id="gname">Sanne</h3></div>
+      <div class="perf"></div>
+      <div class="card__body">
+        <div class="avatar" id="avatar"></div>
+        <div class="chips" id="chips"></div>
+      </div>
+      <p class="quote" id="quote">&bdquo;Ik hoor bij die groep die net naar binnen ging.&ldquo;</p>
+      <div class="patience"><i id="bar"></i></div>
+      <div class="stamp no">Weg</div>
+      <div class="stamp yes">Binnen</div>
+    </article>
+    <div class="flash" id="flash"></div>
+   </div>
+  </section>
+
+  <nav class="actions">
+    <button class="act no" id="btnNo">Weigeren<small>veeg links</small></button>
+    <button class="act yes" id="btnYes">Binnen<small>veeg rechts</small></button>
+  </nav>
+
+  <!-- titel -->
+  <section class="sheet" id="sheetTitle">
+    <div>
+      <p class="eyebrow">Portiersdienst &middot; donderdagnacht</p>
+      <h1>Op de<br>Lijst</h1>
+    </div>
+    <p>Jij staat aan de deur. Veeg links om te weigeren, rechts om binnen te laten. Elk uur fluistert de manager er een regel bij &mdash; en die regels stapelen op.</p>
+    <div class="ledger" id="titleLedger"></div>
+    <div class="choices">
+      <button class="big go" id="btnStart"><span><strong>Begin de nacht</strong><em>23:00 &mdash; de rij staat al om de hoek</em></span><span class="val">&rarr;</span></button>
+    </div>
+    <p class="legal"><b>Tip:</b> de wet (legitimatie, 18+) gaat altijd v&oacute;&oacute;r het huisbeleid. En zodra &bdquo;gastenlijst gaat v&oacute;&oacute;r&ldquo; hangt, mag iemand op de lijst wél binnen op sneakers.</p>
+  </section>
+
+  <!-- uurpauze -->
+  <section class="sheet" id="sheetBank" hidden>
+    <div>
+      <p class="eyebrow" id="bankEyebrow">Uur voorbij</p>
+      <h2 id="bankTitle">Deur even dicht</h2>
+    </div>
+    <div class="ledger" id="bankLedger"></div>
+    <div class="choices">
+      <button class="big safe" id="btnCash"><span><strong>Deur dicht</strong><em>Cash veilig, nacht klaar</em></span><span class="val" id="cashVal">&euro;0</span></button>
+      <button class="big risk" id="btnPush"><span><strong>Nog een uur</strong><em id="pushSub">Eén regel erbij, kortere lont</em></span><span class="val" id="pushVal">&times;1,4</span></button>
+    </div>
+    <p class="legal" id="bankRisk"></p>
+  </section>
+
+  <!-- einde -->
+  <section class="sheet" id="sheetOver" hidden>
+    <div>
+      <p class="eyebrow" id="overEyebrow">03:00 &middot; eruit gezet</p>
+      <h2 id="overTitle">Drie keer mis</h2>
+    </div>
+    <p id="overLine">De manager neemt je pas in. De fooienpot van vanavond ben je kwijt.</p>
+    <div class="ledger" id="overLedger"></div>
+    <div class="choices">
+      <button class="big go" id="btnAgain"><span><strong>Nog een nacht</strong><em>Nieuwe rij, nieuw beleid</em></span><span class="val">&rarr;</span></button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+"use strict";
+(function(){
+
+/* ========== opslag ========== */
+var store = {
+  get:function(k,d){ try{ var v=localStorage.getItem("opdelijst."+k); return v===null?d:JSON.parse(v);}catch(e){return d} },
+  set:function(k,v){ try{ localStorage.setItem("opdelijst."+k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ========== geluid ========== */
+var actx=null, muted=store.get("muted",false);
+function blip(freq,dur,type,vol){
+  if(muted) return;
+  try{
+    if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+    var o=actx.createOscillator(), g=actx.createGain();
+    o.type=type||"triangle"; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol||0.06, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+function buzz(ms){ try{ if(navigator.vibrate && !muted) navigator.vibrate(ms); }catch(e){} }
+
+/* ========== regels ========== */
+/* Alle regels gaan over kleding, spullen, leeftijd, nuchterheid, groepsgrootte,
+   lidmaatschap en de gastenlijst. Nooit over wie iemand is. */
+var LAWS = [
+  { id:"id",   label:"Legitimatie verplicht", law:true, fails:function(g){ return !g.hasId } },
+  { id:"a18",  label:"18 jaar en ouder",      law:true, fails:function(g){ return g.age<18 } }
+];
+var POOL = [
+  { id:"sneak", label:"Geen sportschoenen",   fails:function(g){ return g.shoes==="sportschoenen" } },
+  { id:"cap",   label:"Geen petten",          fails:function(g){ return g.hat } },
+  { id:"bag",   label:"Geen tassen",          fails:function(g){ return g.bag } },
+  { id:"grp",   label:"Groepen max. 4",       fails:function(g){ return g.group>4 } },
+  { id:"drunk", label:"Niemand met te veel op", fails:function(g){ return g.drunk } },
+  { id:"black", label:"Dresscode: zwart",     fails:function(g){ return g.outfit!=="zwart" } },
+  { id:"mem",   label:"Alleen leden",         fails:function(g){ return !g.member } },
+  { id:"a21",   label:"Vanaf nu 21+",         fails:function(g){ return g.age<21 } },
+  { id:"list",  label:"Gastenlijst gaat vóór", priority:true, fails:function(){ return false } }
+];
+
+function verdict(g){
+  var i, r;
+  for(i=0;i<LAWS.length;i++){ if(LAWS[i].fails(g)) return {allow:false, why:LAWS[i].label}; }
+  var priority=false, firstFail=null;
+  for(i=0;i<S.rules.length;i++){
+    r=S.rules[i];
+    if(r.priority){ if(g.onList) priority=true; continue; }
+    if(r.fails(g) && !firstFail) firstFail=r;
+  }
+  if(priority) return {allow:true, why:"Gastenlijst gaat vóór"};
+  if(firstFail) return {allow:false, why:firstFail.label};
+  return {allow:true, why:"Voldoet aan het beleid"};
+}
+
+/* ========== gasten ========== */
+var NAMES=["Sanne","Youssef","Fleur","Bram","Naomi","Tycho","Jamal","Lotte","Ravi","Esmee",
+"Sem","Amara","Joris","Kiki","Milan","Nour","Daan","Vera","Pim","Sofia","Ravello","Ise",
+"Teun","Chantal","Bo","Mees","Zoë","Hidde","Jelle","Suus","Timo","Nina"];
+var QUOTES_OK=["„Eindelijk, het is koud.“","„Is Mila al binnen?“","„Eerste keer hier.“",
+"„Ik kom voor de late set.“","„Rustige avond nog?“","„We blijven maar even.“",
+"„Zeker weten dat het goed zit.“","„Ik heb m’n pasje bij me.“"];
+var QUOTES_PUSH=["„Ik hoor bij die groep die net binnenging.“","„De DJ kent mij.“",
+"„Ik stond hier vorige week ook.“","„Kom op man, één keertje.“",
+"„M’n jas ligt al binnen.“","„Ik werk hier bijna.“","„Ik heb echt niks op.“",
+"„Mag ik heel even naar de wc?“"];
+var SKIN=["#F0C9A4","#D9A273","#B5794D","#8A5533","#5F3A22","#F4D6BC"];
+var HAIR=["#2B1F1A","#4A3020","#8C6239","#D8B06A","#1A1520","#7A3C2E","#C0574F","#3D2E55"];
+var CLOTH={zwart:"#2C2438", rood:"#8C2B36", wit:"#D9D2C6", blauw:"#27436B", groen:"#2C5B48", geel:"#9A7A22"};
+var COLORS=["zwart","rood","wit","blauw","groen","geel"];
+var SHOES=["sportschoenen","nette schoenen","laarzen"];
+
+function pick(a){ return a[(Math.random()*a.length)|0] }
+function chance(p){ return Math.random()<p }
+
+function makeGuest(){
+  var age;
+  var roll=Math.random();
+  if(roll<0.10) age = 15 + ((Math.random()*3)|0);      /* 15-17 */
+  else if(roll<0.32) age = 18 + ((Math.random()*3)|0); /* 18-20 */
+  else age = 21 + ((Math.random()*20)|0);              /* 21-40 */
+  var g={
+    name: pick(NAMES),
+    age: age,
+    hasId: chance(0.88),
+    shoes: chance(0.46) ? "sportschoenen" : pick(["nette schoenen","laarzen"]),
+    outfit: chance(0.42) ? "zwart" : pick(COLORS),
+    hat: chance(0.16),
+    bag: chance(0.19),
+    group: chance(0.30) ? 2 + ((Math.random()*5)|0) : 1,
+    drunk: chance(0.17),
+    member: chance(0.30),
+    onList: chance(0.17),
+    skin: pick(SKIN),
+    hair: pick(HAIR)
+  };
+  g.quote = (g.drunk || g.age<18 || !g.hasId) ? pick(QUOTES_PUSH) : pick(QUOTES_OK);
+  return g;
+}
+
+/* houd de stroom ongeveer 50/50 zodat spammen niet werkt */
+var hist=[];
+function drawGuest(){
+  var want=null;
+  if(hist.length>=2 && hist[hist.length-1]===hist[hist.length-2]) want = !hist[hist.length-1];
+  var fallback=null;
+  for(var i=0;i<14;i++){
+    var g=makeGuest();
+    var a=verdict(g).allow;
+    if(want===null || a===want){ hist.push(a); if(hist.length>6) hist.shift(); return g; }
+    if(!fallback) fallback=g;
+  }
+  hist.push(verdict(fallback).allow); if(hist.length>6) hist.shift();
+  return fallback;
+}
+
+/* ========== avatar ========== */
+function avatarSVG(g){
+  var cloth = CLOTH[g.outfit] || "#1E1926";
+  var s=[];
+  s.push('<svg viewBox="0 0 64 76" role="img" aria-label="gast">');
+  s.push('<rect x="13" y="38" width="38" height="38" rx="13" fill="'+cloth+'" stroke="rgba(255,255,255,.16)"/>');
+  if(g.bag) s.push('<rect x="43" y="44" width="14" height="17" rx="3" fill="#33283F" stroke="#4C3C60"/>');
+  s.push('<rect x="27" y="30" width="10" height="10" fill="'+g.skin+'"/>');
+  s.push('<circle cx="32" cy="21" r="14" fill="'+g.skin+'"/>');
+  s.push('<path d="M18 21 A14 14 0 0 1 46 21 Z" fill="'+g.hair+'"/>');
+  s.push('<circle cx="27" cy="22" r="1.7" fill="#231A2E"/><circle cx="37" cy="22" r="1.7" fill="#231A2E"/>');
+  if(g.drunk){
+    s.push('<path d="M27 29 q5 -4 10 0" stroke="#231A2E" stroke-width="1.6" fill="none" stroke-linecap="round"/>');
+    s.push('<rect x="4" y="46" width="10" height="15" rx="2" fill="#EFA43C" opacity=".9"/>');
+    s.push('<rect x="4" y="46" width="10" height="5" rx="2" fill="#F6C67E"/>');
+  } else {
+    s.push('<path d="M27 28 q5 3 10 0" stroke="#231A2E" stroke-width="1.6" fill="none" stroke-linecap="round"/>');
+  }
+  if(g.hat){
+    s.push('<rect x="14" y="12" width="36" height="6" rx="3" fill="#2A2233"/>');
+    s.push('<path d="M19 13 a13 10 0 0 1 26 0 z" fill="#372C46"/>');
+  }
+  if(g.shoes==="sportschoenen"){
+    s.push('<rect x="16" y="70" width="13" height="6" rx="3" fill="#E6E1D6"/><rect x="35" y="70" width="13" height="6" rx="3" fill="#E6E1D6"/>');
+  } else if(g.shoes==="laarzen"){
+    s.push('<rect x="17" y="66" width="11" height="10" rx="2" fill="#2A2233"/><rect x="36" y="66" width="11" height="10" rx="2" fill="#2A2233"/>');
+  } else {
+    s.push('<rect x="17" y="71" width="12" height="5" rx="2" fill="#1A1520"/><rect x="35" y="71" width="12" height="5" rx="2" fill="#1A1520"/>');
+  }
+  s.push('</svg>');
+  return s.join("");
+}
+
+/* ========== state ========== */
+var PER_HOUR=12;
+var S={ screen:"title", hour:0, idx:0, strikes:0, pending:0, combo:0, served:0,
+        rules:[], unused:[], guest:null, deadline:0, patience:6200, locked:false };
+var best = { cash: store.get("best",0), guests: store.get("bestGuests",0), nights: store.get("nights",0) };
+
+/* ========== dom ========== */
+function $(id){ return document.getElementById(id) }
+var elStrikes=$("strikes"), elClock=$("clock"), elHour=$("hourlbl"), elPurse=$("purse"),
+    elRules=$("rules"), elCard=$("card"), elQueue=$("queue"), elName=$("gname"),
+    elAvatar=$("avatar"), elChips=$("chips"), elQuote=$("quote"), elBar=$("bar"),
+    elFlash=$("flash"), elStage=$("stage");
+var stampYes=elCard.querySelector(".stamp.yes"), stampNo=elCard.querySelector(".stamp.no");
+
+function money(n){ return "€" + Math.round(n).toLocaleString("nl-NL") }
+function clockAt(h){ return String((22+h)%24).padStart(2,"0") + ":00" }
+function multFor(h){ return 1 + 0.35*(h-1) }
+function fmtMult(m){ return "×" + m.toFixed(2).replace(".",",") }
+
+/* ========== render ========== */
+function renderHud(){
+  var out="";
+  for(var i=0;i<3;i++) out += '<i class="strike'+(i<S.strikes?" on":"")+'"></i>';
+  elStrikes.innerHTML=out;
+  elClock.textContent = clockAt(Math.max(1,S.hour));
+  elHour.textContent = "uur " + Math.max(1,S.hour);
+  elPurse.textContent = money(S.pending);
+}
+function renderRules(freshId){
+  var all = LAWS.concat(S.rules), out="", i, r;
+  for(i=0;i<all.length;i++){
+    r=all[i];
+    out += '<span class="rule'+(r.law?" law":"")+(r.id===freshId?" fresh":"")+'">'+r.label+'</span>';
+  }
+  elRules.innerHTML=out;
+  if(freshId) elRules.scrollLeft = elRules.scrollWidth;
+}
+function renderGuest(g){
+  elQueue.textContent = "#" + String(S.served+1).padStart(3,"0");
+  elName.textContent = g.name;
+  elAvatar.innerHTML = avatarSVG(g) + (g.group>1 ? '<span class="crowd">+'+(g.group-1)+'</span>' : "");
+  var c=[];
+  c.push(['<span class="chip">',g.age+" jaar",'</span>'].join(""));
+  c.push('<span class="chip">'+(g.hasId?"Legitimatie":"Géén legitimatie")+'</span>');
+  c.push('<span class="chip">'+g.shoes.charAt(0).toUpperCase()+g.shoes.slice(1)+'</span>');
+  c.push('<span class="chip">Outfit: '+g.outfit+'</span>');
+  if(g.hat) c.push('<span class="chip">Pet op</span>');
+  if(g.bag) c.push('<span class="chip">Tas bij zich</span>');
+  if(g.group>1) c.push('<span class="chip">Groep van '+g.group+'</span>');
+  if(g.drunk) c.push('<span class="chip">Aangeschoten</span>');
+  if(g.member) c.push('<span class="chip pass">Lidkaart</span>');
+  if(g.onList) c.push('<span class="chip pass">Op de gastenlijst</span>');
+  elChips.innerHTML=c.join("");
+  elQuote.textContent = g.quote;
+}
+
+/* ========== flow ========== */
+function startNight(){
+  S.hour=0; S.idx=0; S.strikes=0; S.pending=0; S.combo=0; S.served=0;
+  S.rules=[]; S.unused=POOL.slice(); hist=[];
+  hide("sheetTitle"); hide("sheetOver"); hide("sheetBank");
+  S.screen="play";
+  startHour();
+  loop();
+}
+function startHour(){
+  S.hour++; S.idx=0;
+  var fresh=null;
+  if(S.unused.length){
+    var k=(Math.random()*S.unused.length)|0;
+    fresh=S.unused.splice(k,1)[0];
+    S.rules.push(fresh);
+  }
+  S.patience = Math.max(2400, 6200 - (S.hour-1)*560);
+  renderRules(fresh ? fresh.id : null);
+  renderHud();
+  nextGuest();
+  if(S.hour>1) blip(660,.18,"sine",.05);
+}
+function nextGuest(){
+  S.guest = drawGuest();
+  renderGuest(S.guest);
+  elCard.style.transition="none";
+  elCard.style.transform="translateY(16px) scale(.97)";
+  elCard.style.opacity="0";
+  requestAnimationFrame(function(){
+    elCard.style.transition="transform .22s cubic-bezier(.2,.8,.3,1), opacity .22s";
+    elCard.style.transform="translate(0,0) rotate(0deg)";
+    elCard.style.opacity="1";
+  });
+  stampYes.style.opacity=0; stampNo.style.opacity=0;
+  S.deadline = performance.now() + S.patience;
+}
+
+var raf=null;
+function loop(){
+  if(S.screen!=="play"){ raf=null; return }
+  var left = S.deadline - performance.now();
+  var f = Math.max(0, Math.min(1, left/S.patience));
+  elBar.style.transform = "scaleX("+f+")";
+  elBar.style.background = f<0.28 ? "var(--rouge)" : "var(--amber)";
+  if(left<=0 && !S.locked) timeout();
+  raf=requestAnimationFrame(loop);
+}
+
+function flash(html, good){
+  elFlash.innerHTML=html;
+  elFlash.style.color = good ? "var(--jade)" : "var(--rouge)";
+  elFlash.classList.remove("show"); void elFlash.offsetWidth; elFlash.classList.add("show");
+}
+
+function decide(playerAllows){
+  if(S.screen!=="play" || S.locked) return;
+  S.locked=true;
+  var v=verdict(S.guest);
+  var ok = (v.allow===playerAllows);
+  if(ok){
+    var cash = 12 + Math.min(S.combo,8)*3;
+    S.pending += cash; S.combo++;
+    flash("+"+money(cash)+(S.combo>2?' <span class="why">'+S.combo+' op rij</span>':""), true);
+    blip(520+Math.min(S.combo,8)*40,.09,"triangle",.05);
+  } else {
+    S.strikes++; S.combo=0;
+    flash((playerAllows?"Die had je moeten weigeren":"Die mocht er wél in")+
+          '<span class="why">'+v.why+'</span>', false);
+    blip(150,.28,"sawtooth",.07); buzz(70);
+  }
+  renderHud();
+  flyCard(playerAllows?1:-1);
+  setTimeout(function(){ S.locked=false; advance(); }, 230);
+}
+function timeout(){
+  S.locked=true; S.strikes++; S.combo=0;
+  flash("Te lang getwijfeld"+'<span class="why">De rij loopt weg &mdash; de manager ziet het</span>', false);
+  blip(120,.3,"sawtooth",.07); buzz([40,40,40]);
+  renderHud(); flyCard(0);
+  setTimeout(function(){ S.locked=false; advance(); }, 230);
+}
+function flyCard(dir){
+  elCard.style.transition="transform .22s ease-in, opacity .22s ease-in";
+  if(dir===0) elCard.style.transform="translateY(26px) scale(.94)";
+  else elCard.style.transform="translateX("+(dir*440)+"px) rotate("+(dir*16)+"deg)";
+  elCard.style.opacity="0";
+}
+function advance(){
+  S.served++; S.idx++;
+  if(S.strikes>=3){ gameOver(); return }
+  if(S.idx>=PER_HOUR){ hourBreak(); return }
+  nextGuest();
+}
+
+/* ========== uurpauze ========== */
+function hourBreak(){
+  S.screen="bank";
+  var m = multFor(S.hour), cash = S.pending*m;
+  $("bankEyebrow").textContent = clockAt(S.hour+1) + " · uur " + S.hour + " voorbij";
+  $("bankTitle").textContent = S.hour<3 ? "Nog rustig buiten" : (S.hour<5 ? "De rij wordt lang" : "Het loopt uit de hand");
+  $("bankLedger").innerHTML =
+    row("Gasten afgehandeld", S.served) +
+    row("Fooienpot (onbeveiligd)", money(S.pending)) +
+    row("Bonus voor doorgaan", fmtMult(m)) +
+    row("Uitbetaling nu", money(cash), true);
+  $("cashVal").textContent = money(cash);
+  $("pushVal").textContent = fmtMult(multFor(S.hour+1));
+  $("pushSub").textContent = S.unused.length ? "Regel erbij · " + (S.patience/1000).toFixed(1).replace(".",",") + "s bedenktijd" : "Kortere lont, geen nieuwe regel";
+  $("bankRisk").innerHTML = "Ga je door, dan zet je <b>"+money(cash)+"</b> op het spel. Drie fouten en de hele pot is weg.";
+  show("sheetBank");
+}
+function row(label,val,total){
+  return '<div class="row'+(total?" total":"")+'"><span>'+label+'</span><b>'+val+'</b></div>';
+}
+
+function cashOut(){
+  var got = S.pending*multFor(S.hour);
+  S.screen="over";
+  if(got>best.cash){ best.cash=Math.round(got); store.set("best",best.cash) }
+  if(S.served>best.guests){ best.guests=S.served; store.set("bestGuests",best.guests) }
+  best.nights++; store.set("nights",best.nights);
+  hide("sheetBank");
+  $("overEyebrow").textContent = clockAt(S.hour+1) + " · deur dicht";
+  $("overTitle").textContent = "Uitbetaald";
+  $("overLine").textContent = "Je hield het hoofd koel en ging naar huis met de pot. " +
+    (S.strikes===0 ? "Geen enkele misser vanavond." : "Met " + S.strikes + " misser" + (S.strikes>1?"s":"") + " op je naam.");
+  $("overLedger").innerHTML =
+    row("Uitbetaald", money(got), true) +
+    row("Gasten afgehandeld", S.served) +
+    row("Uur gehaald", S.hour) +
+    row("Beste nacht ooit", money(best.cash));
+  blip(760,.25,"sine",.06);
+  show("sheetOver");
+}
+function pushOn(){
+  hide("sheetBank");
+  S.screen="play";
+  startHour();
+  loop();
+}
+
+/* ========== einde ========== */
+function gameOver(){
+  S.screen="over";
+  var lost = S.pending*multFor(S.hour);
+  if(S.served>best.guests){ best.guests=S.served; store.set("bestGuests",best.guests) }
+  best.nights++; store.set("nights",best.nights);
+  $("overEyebrow").textContent = clockAt(S.hour+1) + " · eruit gezet";
+  $("overTitle").textContent = "Drie keer mis";
+  var near = best.guests - S.served;
+  $("overLine").textContent = (near>0 && near<=5)
+    ? "Je was " + near + " gast" + (near>1?"en":"") + " van je record. De pot ben je kwijt."
+    : "De manager neemt je pas in. De fooienpot van vanavond ben je kwijt.";
+  $("overLedger").innerHTML =
+    row("Verloren fooienpot", money(lost), true) +
+    row("Gasten afgehandeld", S.served) +
+    row("Uur gehaald", S.hour) +
+    row("Beste nacht ooit", money(best.cash));
+  blip(90,.5,"sawtooth",.07); buzz([60,50,60]);
+  show("sheetOver");
+}
+
+function show(id){ $(id).hidden=false }
+function hide(id){ $(id).hidden=true }
+
+/* ========== invoer ========== */
+var drag={on:false,x0:0,y0:0,dx:0,id:null};
+elCard.addEventListener("pointerdown", function(e){
+  if(S.screen!=="play"||S.locked) return;
+  drag.on=true; drag.x0=e.clientX; drag.y0=e.clientY; drag.dx=0; drag.id=e.pointerId;
+  elCard.setPointerCapture(e.pointerId);
+  elCard.style.transition="none";
+});
+elCard.addEventListener("pointermove", function(e){
+  if(!drag.on||e.pointerId!==drag.id) return;
+  drag.dx = e.clientX-drag.x0;
+  var dy = (e.clientY-drag.y0)*0.25;
+  elCard.style.transform="translate("+drag.dx+"px,"+dy+"px) rotate("+(drag.dx*0.045)+"deg)";
+  var t=Math.min(1, Math.abs(drag.dx)/90);
+  stampYes.style.opacity = drag.dx>0 ? t : 0;
+  stampNo.style.opacity  = drag.dx<0 ? t : 0;
+});
+function endDrag(e){
+  if(!drag.on||(e && e.pointerId!==drag.id)) return;
+  drag.on=false;
+  if(Math.abs(drag.dx)>85){ decide(drag.dx>0); return }
+  elCard.style.transition="transform .2s cubic-bezier(.2,.8,.3,1)";
+  elCard.style.transform="translate(0,0) rotate(0deg)";
+  stampYes.style.opacity=0; stampNo.style.opacity=0;
+}
+elCard.addEventListener("pointerup", endDrag);
+elCard.addEventListener("pointercancel", endDrag);
+
+$("btnYes").addEventListener("click", function(){ decide(true) });
+$("btnNo").addEventListener("click", function(){ decide(false) });
+document.addEventListener("keydown", function(e){
+  if(e.key==="ArrowRight") decide(true);
+  else if(e.key==="ArrowLeft") decide(false);
+  else if(e.key===" "||e.key==="Enter"){
+    if(S.screen==="title"||S.screen==="over"){ e.preventDefault(); startNight() }
+  }
+});
+$("btnStart").addEventListener("click", startNight);
+$("btnAgain").addEventListener("click", startNight);
+$("btnCash").addEventListener("click", cashOut);
+$("btnPush").addEventListener("click", pushOn);
+
+var elMute=$("btnMute");
+function paintMute(){ elMute.textContent = muted ? "geluid uit" : "geluid aan" }
+elMute.addEventListener("click", function(){ muted=!muted; store.set("muted",muted); paintMute() });
+paintMute();
+
+/* ========== eerste beeld ========== */
+S.rules=[POOL[0]];
+renderRules();
+renderHud();
+var demo = makeGuest();
+demo.name="Sanne"; demo.age=24; demo.hasId=true; demo.shoes="sportschoenen";
+demo.outfit="zwart"; demo.onList=true; demo.group=2; demo.hat=false; demo.bag=false; demo.drunk=false;
+demo.quote="„Ik sta op de lijst, van Mila.“";
+renderGuest(demo);
+elBar.style.transform="scaleX(1)";
+$("titleLedger").innerHTML =
+  row("Beste nacht", money(best.cash)) +
+  row("Meeste gasten", best.guests) +
+  row("Nachten gedraaid", best.nights);
+
+})();
+</script>
+</body>
+</html>
