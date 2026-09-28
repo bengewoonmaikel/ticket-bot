@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=2560, height=1440" />
+    <title>IBDeals launch film</title>
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Manrope";
+        src: url("fonts/manrope-latin-wght-normal.woff2") format("woff2");
+        font-weight: 200 800;
+        font-display: block;
+      }
+      @font-face {
+        font-family: "Inter";
+        src: url("fonts/inter-latin-wght-normal.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: block;
+      }
+      :root {
+        --navy: #0a1b33;
+        --navy-deep: #050d1a;
+        --abyss: #030814;
+        --ink: #f5f8fc;
+        --blue-1: #3b82f6;
+        --blue-2: #1d54c9;
+        --glow: #8db8ff;
+        --green: #2ecc71;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--abyss);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--navy-deep);
+        font-family: "Inter", sans-serif;
+        color: var(--ink);
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      /* ---------- background: navy with depth ---------- */
+      #bg {
+        background:
+          radial-gradient(120% 90% at 50% 58%, #10284a 0%, #0a1b33 38%, #07142a 62%, #030814 100%);
+      }
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+      }
+      #blob-a {
+        left: 180px;
+        top: 700px;
+        width: 1300px;
+        height: 900px;
+        background: rgba(29, 84, 201, 0.22);
+      }
+      #blob-b {
+        left: 1500px;
+        top: 80px;
+        width: 1200px;
+        height: 800px;
+        background: rgba(59, 130, 246, 0.12);
+      }
+      canvas.layer {
+        width: 2560px;
+        height: 1440px;
+      }
+
+      /* ---------- broker cards (positioned per frame by world.js) ---------- */
+      #cards {
+        overflow: hidden;
+        isolation: isolate;
+      }
+      .bcard {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 340px;
+        height: 212px;
+        transform-origin: 50% 100%;
+        opacity: 0;
+        --lit: 0;
+      }
+      .bc-in {
+        position: absolute;
+        inset: 0;
+        border-radius: 26px;
+        background:
+          linear-gradient(160deg, rgba(34, 70, 124, calc(0.34 + 0.24 * var(--lit))) 0%, rgba(12, 30, 58, 0.78) 58%, rgba(8, 20, 40, 0.86) 100%);
+        border: 2px solid rgba(141, 184, 255, calc(0.16 + 0.5 * var(--lit)));
+        box-shadow:
+          0 30px 70px rgba(0, 0, 0, 0.45),
+          0 0 calc(70px * var(--lit)) rgba(59, 130, 246, calc(0.5 * var(--lit))),
+          inset 0 1px 0 rgba(255, 255, 255, 0.14);
+        overflow: hidden;
+      }
+      .bc-in::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 38%);
+      }
+      .bc-row {
+        position: absolute;
+        left: 28px;
+        right: 28px;
+        top: 30px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .bc-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        flex: none;
+        background: linear-gradient(145deg, rgba(141, 184, 255, calc(0.3 + 0.45 * var(--lit))), rgba(29, 84, 201, calc(0.25 + 0.5 * var(--lit))));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      }
+      .bc-lines {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        flex: 1;
+      }
+      .bc-lines i,
+      .bc-foot b {
+        display: block;
+        height: 14px;
+        border-radius: 8px;
+        background: rgba(245, 248, 252, calc(0.14 + 0.16 * var(--lit)));
+      }
+      .bc-lines i + i {
+        height: 11px;
+        background: rgba(245, 248, 252, calc(0.08 + 0.08 * var(--lit)));
+      }
+      .bc-shield {
+        width: 40px;
+        height: 40px;
+        flex: none;
+        fill: none;
+        stroke: rgba(141, 184, 255, calc(0.35 + 0.6 * var(--lit)));
+        stroke-width: 1.6;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+      .bc-foot {
+        position: absolute;
+        left: 28px;
+        right: 28px;
+        bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .bc-foot b {
+        height: 30px;
+        border-radius: 15px;
+        background: rgba(245, 248, 252, calc(0.06 + 0.06 * var(--lit)));
+        border: 1px solid rgba(245, 248, 252, 0.08);
+      }
+      .bc-dot {
+        margin-left: auto;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: rgba(141, 184, 255, calc(0.2 + 0.8 * var(--lit)));
+        box-shadow: 0 0 calc(22px * var(--lit)) rgba(59, 130, 246, 0.9);
+      }
+
+      /* ---------- typography ---------- */
+      .headline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        font-family: "Manrope", sans-serif;
+        font-weight: 800;
+        color: var(--ink);
+        text-align: center;
+        white-space: nowrap;
+        letter-spacing: -0.015em;
+        line-height: 1;
+        isolation: isolate;
+      }
+      .ch {
+        display: inline-block;
+      }
+      .mask {
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: top;
+        padding: 0.06em 0.02em 0.1em;
+        margin: -0.06em 0 -0.1em;
+      }
+      .w {
+        display: inline-block;
+      }
+      .gdot {
+        display: inline-block;
+        width: 0.15em;
+        height: 0.15em;
+        margin-left: 0.04em;
+        border-radius: 50%;
+        background: radial-gradient(circle at 45% 40%, #ffffff 0%, #dbe8ff 40%, #8db8ff 75%, #3b82f6 100%);
+        box-shadow:
+          0 0 0.18em rgba(141, 184, 255, 0.95),
+          0 0 0.6em rgba(59, 130, 246, 0.65);
+      }
+
+      #t-same {
+        left: 0;
+        top: 0;
+        right: auto;
+        font-size: 212px;
+        text-align: left;
+      }
+      #t-same .probe {
+        color: transparent;
+      }
+      #t-same .base {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        vertical-align: baseline;
+      }
+      #t-tag {
+        top: 250px;
+        font-size: 112px;
+        line-height: 1.04;
+      }
+      #t-tag .tline {
+        display: block;
+      }
+      .scrim {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 2300px;
+        height: 520px;
+        margin: -260px 0 0 -1150px;
+        background: radial-gradient(50% 50% at 50% 50%, rgba(3, 8, 20, 0.62) 0%, rgba(3, 8, 20, 0) 100%);
+        z-index: -1;
+      }
+      #t-high {
+        top: 232px;
+        font-size: 188px;
+      }
+      #t-brand {
+        top: 150px;
+        font-size: 124px;
+      }
+
+      /* ---------- 38% ---------- */
+      #stat-in {
+        position: absolute;
+        left: 300px;
+        top: 360px;
+        width: 1500px;
+      }
+      #stat-num {
+        font-family: "Manrope", sans-serif;
+        font-weight: 800;
+        font-size: 460px;
+        line-height: 0.92;
+        letter-spacing: -0.035em;
+        color: var(--green);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        text-shadow: 0 0 80px rgba(46, 204, 113, 0.28);
+        transform-origin: 0% 60%;
+      }
+      #stat-num .pct {
+        font-size: 0.62em;
+        letter-spacing: 0;
+        margin-left: 0.04em;
+        vertical-align: 0.46em;
+      }
+      #stat-rule {
+        width: 860px;
+        height: 3px;
+        margin: 44px 0 0 12px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, var(--blue-1), var(--blue-2) 70%, rgba(29, 84, 201, 0));
+        transform-origin: 0% 50%;
+      }
+      #stat-label {
+        margin: 34px 0 0 12px;
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        font-size: 46px;
+        letter-spacing: 0.16em;
+        color: rgba(245, 248, 252, 0.88);
+        white-space: nowrap;
+      }
+
+      /* ---------- your brand, not ours ---------- */
+      #brand-stage {
+        position: absolute;
+        inset: 0;
+        perspective: 2600px;
+        perspective-origin: 50% 40%;
+      }
+      #brand-light {
+        position: absolute;
+        left: 280px;
+        top: 200px;
+        width: 2000px;
+        height: 1300px;
+        border-radius: 50%;
+        background: radial-gradient(50% 50% at 50% 50%, rgba(59, 130, 246, 0.42) 0%, rgba(29, 84, 201, 0.14) 45%, rgba(10, 27, 51, 0) 100%);
+      }
+      #devices {
+        position: absolute;
+        left: 1280px;
+        top: 860px;
+        width: 0;
+        height: 0;
+        transform-style: preserve-3d;
+      }
+      .panel {
+        position: absolute;
+        border-radius: 34px;
+        background: linear-gradient(160deg, rgba(38, 78, 138, 0.78) 0%, rgba(16, 40, 74, 0.84) 48%, rgba(8, 22, 44, 0.9) 100%);
+        border: 2px solid rgba(190, 214, 255, 0.26);
+        box-shadow:
+          0 70px 160px rgba(0, 0, 0, 0.55),
+          0 0 120px rgba(59, 130, 246, 0.16),
+          inset 0 2px 0 rgba(255, 255, 255, 0.2),
+          inset 0 -40px 80px rgba(3, 8, 20, 0.35);
+        overflow: hidden;
+      }
+      .psheen {
+        position: absolute;
+        top: -10%;
+        bottom: -10%;
+        left: 0;
+        width: 34%;
+        background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(220, 234, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%);
+        pointer-events: none;
+      }
+      .panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(118deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 26%, rgba(255, 255, 255, 0) 42%),
+          radial-gradient(80% 60% at 20% 0%, rgba(141, 184, 255, 0.16) 0%, rgba(141, 184, 255, 0) 70%);
+      }
+      .browser,
+      .portal {
+        width: 1000px;
+        height: 640px;
+        left: -500px;
+        top: -370px;
+      }
+      .phone {
+        width: 440px;
+        height: 900px;
+        left: -220px;
+        top: -470px;
+        border-radius: 70px;
+        border-width: 3px;
+        border-color: rgba(245, 248, 252, 0.24);
+      }
+      .sk {
+        height: 22px;
+        border-radius: 11px;
+        background: rgba(245, 248, 252, 0.14);
+        transform-origin: 0% 50%;
+      }
+      .mark {
+        position: relative;
+        width: 84px;
+        height: 84px;
+        border-radius: 26px;
+        background: linear-gradient(145deg, #ffffff 0%, #dfe7f2 100%);
+        box-shadow: 0 10px 40px rgba(245, 248, 252, 0.25);
+      }
+      .mark::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 34%;
+        height: 34%;
+        margin: -17% 0 0 -17%;
+        border-radius: 5px;
+        background: #0e2442;
+        transform: rotate(45deg);
+      }
+      .mark.sm {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+      }
+      .mring {
+        position: absolute;
+        inset: -6px;
+        border-radius: 30px;
+        border: 3px solid rgba(245, 248, 252, 0.9);
+        opacity: 0;
+      }
+      .bar {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 26px;
+        border-bottom: 1px solid rgba(245, 248, 252, 0.1);
+      }
+      .bar i {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: rgba(245, 248, 252, 0.2);
+      }
+      .bar .url {
+        margin-left: 26px;
+        width: 420px;
+        height: 30px;
+        border-radius: 15px;
+        background: rgba(245, 248, 252, 0.08);
+      }
+      .web-hero {
+        padding: 54px 64px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+      .web-hero .row {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .pill {
+        width: 220px;
+        height: 60px;
+        border-radius: 30px;
+        background: rgba(245, 248, 252, 0.9);
+        transform-origin: 0% 50%;
+      }
+      .web-cards {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        bottom: 54px;
+        display: flex;
+        gap: 26px;
+      }
+      .web-cards div {
+        flex: 1;
+        height: 150px;
+        border-radius: 22px;
+        background: rgba(245, 248, 252, 0.06);
+        border: 1px solid rgba(245, 248, 252, 0.1);
+      }
+      .portal .side {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 230px;
+        padding: 40px 34px;
+        box-sizing: border-box;
+        border-right: 1px solid rgba(245, 248, 252, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+      }
+      .portal .side i {
+        display: block;
+        height: 18px;
+        border-radius: 9px;
+        background: rgba(245, 248, 252, 0.12);
+        transform-origin: 0% 50%;
+      }
+      .portal .main {
+        position: absolute;
+        left: 270px;
+        right: 40px;
+        top: 40px;
+        bottom: 40px;
+      }
+      .kpis {
+        display: flex;
+        gap: 22px;
+      }
+      .kpis div {
+        flex: 1;
+        height: 130px;
+        border-radius: 22px;
+        background: rgba(245, 248, 252, 0.07);
+        border: 1px solid rgba(245, 248, 252, 0.1);
+      }
+      .rows {
+        margin-top: 34px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+      .rows div {
+        height: 52px;
+        border-radius: 14px;
+        background: rgba(245, 248, 252, 0.06);
+        transform-origin: 0% 50%;
+      }
+      .phone .notch {
+        position: absolute;
+        left: 160px;
+        top: 22px;
+        width: 120px;
+        height: 30px;
+        border-radius: 15px;
+        background: rgba(3, 8, 20, 0.7);
+      }
+      .phone .top {
+        position: absolute;
+        left: 44px;
+        right: 44px;
+        top: 96px;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .phone .chart {
+        position: absolute;
+        left: 34px;
+        top: 300px;
+        width: 372px;
+        height: 180px;
+        fill: none;
+        stroke: rgba(245, 248, 252, 0.92);
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .phone .list {
+        position: absolute;
+        left: 44px;
+        right: 44px;
+        top: 540px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+      .phone .list div {
+        height: 58px;
+        border-radius: 16px;
+        background: rgba(245, 248, 252, 0.07);
+        border: 1px solid rgba(245, 248, 252, 0.08);
+        transform-origin: 0% 50%;
+      }
+      .phone .pill {
+        position: absolute;
+        left: 44px;
+        right: 44px;
+        bottom: 56px;
+        width: auto;
+      }
+
+      /* ---------- logo + end card ---------- */
+      #endcard-in {
+        position: absolute;
+        inset: 0;
+      }
+      #logo-glow {
+        position: absolute;
+        left: 530px;
+        top: 250px;
+        width: 1500px;
+        height: 900px;
+        border-radius: 50%;
+        background: radial-gradient(50% 50% at 50% 50%, rgba(59, 130, 246, 0.3) 0%, rgba(29, 84, 201, 0.1) 45%, rgba(10, 27, 51, 0) 100%);
+      }
+      #lockup {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 560px;
+        height: 300px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #wordmark {
+        position: relative;
+        font-family: "Manrope", sans-serif;
+        font-weight: 800;
+        font-size: 250px;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        padding: 0.12em 0.1em 0.16em;
+        white-space: nowrap;
+      }
+      #wordmark .ib {
+        background: linear-gradient(165deg, #6aa4ff 0%, #3b82f6 46%, #2a62dc 100%);
+        filter: drop-shadow(0 0 36px rgba(59, 130, 246, 0.4));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      #wordmark .deals {
+        color: var(--ink);
+      }
+      #wordmark .sheen {
+        position: absolute;
+        inset: 0;
+        padding: inherit;
+        color: transparent;
+        background: linear-gradient(105deg, rgba(255, 255, 255, 0) 42%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0) 58%);
+        background-size: 300% 100%;
+        background-position: 100% 0;
+        -webkit-background-clip: text;
+        background-clip: text;
+      }
+      #url {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 742px;
+        text-align: center;
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        font-size: 72px;
+        letter-spacing: 0.01em;
+        color: rgba(245, 248, 252, 0.94);
+      }
+      #cta-wrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 900px;
+        display: flex;
+        justify-content: center;
+      }
+      #cta {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        height: 132px;
+        padding: 0 70px 0 80px;
+        border-radius: 66px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d54c9 100%);
+        box-shadow:
+          0 24px 70px rgba(29, 84, 201, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.28);
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        font-size: 52px;
+        color: #ffffff;
+        overflow: hidden;
+      }
+      #cta svg {
+        width: 52px;
+        height: 52px;
+        fill: none;
+        stroke: #ffffff;
+        stroke-width: 2.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #cta .sheen {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -40%;
+        width: 34%;
+        background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.38) 50%, rgba(255, 255, 255, 0) 100%);
+      }
+      #cta-glow {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 900px;
+        height: 300px;
+        margin: -150px 0 0 -450px;
+        border-radius: 50%;
+        background: radial-gradient(50% 50% at 50% 50%, rgba(59, 130, 246, 0.35) 0%, rgba(59, 130, 246, 0) 100%);
+      }
+      #disclaimer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1282px;
+        text-align: center;
+        font-family: "Inter", sans-serif;
+        font-weight: 400;
+        font-size: 36px;
+        letter-spacing: 0.005em;
+        color: rgba(245, 248, 252, 0.76);
+      }
+
+      /* ---------- finishing ---------- */
+      #vignette {
+        background: radial-gradient(115% 100% at 50% 50%, rgba(3, 8, 20, 0) 55%, rgba(3, 8, 20, 0.55) 100%);
+      }
+      #grain {
+        opacity: 0.07;
+        mix-blend-mode: overlay;
+        background-repeat: repeat;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute">
+      <filter id="mbH" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+        <feGaussianBlur stdDeviation="0 0" />
+      </filter>
+      <filter id="mbS" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+        <feGaussianBlur stdDeviation="0 0" />
+      </filter>
+    </svg>
+
+    <div id="root" data-composition-id="ibdeals-launch" data-start="0" data-width="2560" data-height="1440" data-duration="18">
+      <div id="bg" class="layer">
+        <div id="blob-a" class="blob"></div>
+        <div id="blob-b" class="blob"></div>
+      </div>
+
+      <canvas id="world" class="layer" width="2560" height="1440"></canvas>
+      <div id="cards" class="layer"></div>
+
+      <div id="stat" class="layer clip" data-start="10" data-duration="2.1" data-track-index="3">
+        <div id="stat-drift"><div id="stat-in">
+          <div id="stat-num"><span id="num-t">3</span><span id="num-o">8</span><span class="pct">%</span></div>
+          <div id="stat-rule"></div>
+          <div id="stat-label">AVERAGE UPLIFT VS. GOING DIRECT</div>
+        </div></div>
+      </div>
+
+      <div id="brand" class="layer clip" data-start="11.95" data-duration="2.15" data-track-index="4">
+        <div id="brand-stage">
+          <div id="brand-light"></div>
+          <div id="devices">
+            <div class="panel browser" id="p-web">
+              <div class="psheen"></div>
+              <div class="bar"><i></i><i></i><i></i><span class="url"></span></div>
+              <div class="web-hero">
+                <div class="row">
+                  <div class="mark sm"><div class="mring"></div></div>
+                  <div class="sk" style="width: 300px"></div>
+                </div>
+                <div class="sk" style="width: 640px; height: 34px; border-radius: 17px"></div>
+                <div class="sk" style="width: 460px; height: 34px; border-radius: 17px"></div>
+                <div class="pill"></div>
+              </div>
+              <div class="web-cards"><div></div><div></div><div></div></div>
+            </div>
+            <div class="panel portal" id="p-portal">
+              <div class="psheen"></div>
+              <div class="side">
+                <div class="mark sm"><div class="mring"></div></div>
+                <i style="width: 150px"></i><i style="width: 120px"></i><i style="width: 136px"></i><i style="width: 104px"></i>
+              </div>
+              <div class="main">
+                <div class="kpis"><div></div><div></div><div></div></div>
+                <div class="rows"><div></div><div></div><div></div><div></div></div>
+              </div>
+            </div>
+            <div class="panel phone" id="p-app">
+              <div class="psheen"></div>
+              <div class="notch"></div>
+              <div class="top">
+                <div class="mark" id="app-mark"><div class="mring"></div></div>
+                <div style="display: flex; flex-direction: column; gap: 14px">
+                  <div class="sk" style="width: 180px"></div>
+                  <div class="sk" style="width: 120px; height: 16px"></div>
+                </div>
+              </div>
+              <div class="sk" style="position: absolute; left: 44px; top: 230px; width: 250px; height: 40px; border-radius: 20px"></div>
+              <svg class="chart" viewBox="0 0 372 180" preserveAspectRatio="none">
+                <path id="app-chart" d="M4,150 C40,146 58,112 94,118 C130,124 146,86 182,84 C218,82 232,110 266,92 C300,74 318,40 368,30" />
+              </svg>
+              <div class="list"><div></div><div></div><div></div></div>
+              <div class="pill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <canvas id="fx" class="layer" width="2560" height="1440"></canvas>
+      <div id="vignette" class="layer"></div>
+
+      <div id="type" class="layer">
+        <div id="t-same" class="headline clip" data-start="0" data-duration="2.6" data-track-index="1"><div id="t-same-in"></div></div>
+        <div id="t-tag" class="headline clip" data-start="2.9" data-duration="3.2" data-track-index="1">
+          <div class="scrim"></div>
+          <div id="t-tag-drift"><div id="t-tag-in">
+            <span class="tline" id="tag-1">BUILT FOR SERIOUS IBs</span>
+            <span class="tline" id="tag-2">WHO WANT BETTER TERMS</span>
+          </div></div>
+        </div>
+        <div id="t-high" class="headline clip" data-start="7.98" data-duration="2.42" data-track-index="1">
+          <div class="scrim" style="height: 440px; margin-top: -220px"></div>
+          <div id="t-high-drift"><div id="t-high-in">HIGHER PAYOUTS<span class="gdot"></span></div></div>
+        </div>
+        <div id="t-brand" class="headline clip" data-start="12" data-duration="2.05" data-track-index="1">
+          <div id="t-brand-in">YOUR BRAND, NOT OURS</div>
+        </div>
+      </div>
+
+      <div id="endcard" class="layer clip" data-start="13.9" data-duration="4.1" data-track-index="5">
+        <div id="endcard-in">
+          <div id="logo-glow"></div>
+          <div id="lockup">
+            <div id="lockup-move">
+              <div id="wordmark"><span class="ib">IB</span><span class="deals">Deals</span><span class="sheen" aria-hidden="true">IBDeals</span></div>
+            </div>
+          </div>
+          <div id="url">ibdeals.com</div>
+          <div id="cta-wrap">
+            <div id="cta-glow"></div>
+            <div id="cta">
+              <span>Apply to be a partner</span>
+              <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6.5l5.5 5.5-5.5 5.5" /></svg>
+              <div class="sheen"></div>
+            </div>
+          </div>
+          <div id="disclaimer">IBDeals is not a broker, financial advisor or investment firm. Trading involves a high level of risk.</div>
+        </div>
+      </div>
+
+      <div id="grain" class="layer"></div>
+    </div>
+
+    <script src="js/score.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/film.js"></script>
+    <script>
+      Promise.all([
+        document.fonts.load('800 176px "Manrope"'),
+        document.fonts.load('600 46px "Inter"'),
+        document.fonts.load('400 32px "Inter"'),
+      ])
+        .then(() => document.fonts.ready)
+        .then(() => {
+          const tl = window.Film.build();
+          window.__timelines = window.__timelines || {};
+          window.__timelines["ibdeals-launch"] = tl;
+        });
+    </script>
+  </body>
+</html>
